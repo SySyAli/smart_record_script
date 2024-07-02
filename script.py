@@ -1,6 +1,6 @@
 import random
 import csv
-
+# TODO: FIGURE OUT WAY TO KEEP TRACK OF EVERYTHING GENERATED
 focus_areas = ["Focus Area 1", "Focus Area 2", "Focus Area 3", "Focus Area 4"]
 risk_levels = ["Low", "Medium", "High"]
 tiers = ["Tier 1", "Tier 2", "Tier 3"]
@@ -24,9 +24,9 @@ def generate_focus_area(type):
         elif type == "OPM":
             focus_str.append(f"{random.choice(focus_areas)} (Risk Level {random.choice(risk_levels)})")
         elif type == "SHM":
-            focus_str.append(f"{random.choice(focus_areas)} – {random.choice(tiers)} (Risk Level {random.choice(risk_levels)})")
+            focus_str.append(f"{random.choice(focus_areas)} – {random.choice(tiers)} - (Risk Level {random.choice(risk_levels)})")
         elif type == "MHM":
-            focus_str.append(f"{random.choice(focus_areas)} – {random.choice(tiers)} (Risk Level {random.choice(risk_levels)})")
+            focus_str.append(f"{random.choice(focus_areas)} – {random.choice(tiers)} - (Risk Level {random.choice(risk_levels)})")
     return ", ".join(focus_str)
 
 def generate_smart_comment():
