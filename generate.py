@@ -8,7 +8,7 @@ data_filename = "input.csv"
 metrics_filename = "input_metrics_report.csv"
 
 # Number of record comments to write to the file
-N = 10
+N = 120
 
 def generate_focus_area(type):
     count = random.randint(1, len(focus_areas))

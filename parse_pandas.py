@@ -1,12 +1,6 @@
-import csv
+# For PowerBI use
+import pandas as pd
 import re
-
-input_file = "input.csv"
-output_file = "_parsed_output.csv"
-failed_output_file = "failed_to_parse.txt"
-
-# clear the txt
-open(failed_output_file, 'w').close()
 
 def validate_entry(entry):
     # check if record id exists
@@ -54,29 +48,17 @@ def parse_comment(record_id, comment):
 
             if focus_area and risk_level:
                 entry_data = [record_id, current_type, focus_area, risk_level, tier]
-                is_valid = 'True' if validate_entry(entry_data) else 'False'
-                entry_data.append(is_valid)
+                entry_data.append(validate_entry(entry_data))  # Check validity
                 parsed_data.append(entry_data)
             else:
-                if entry.strip():  # Ensure we do not log empty entries
-                    with open(failed_output_file, 'a') as f:
+                if entry.strip():  # Ensure we don't log empty entries
+                    with open('failed_to_parse.txt', 'a') as f:
                         f.write(f"Failed to parse ENTRY {record_id} | {current_type}: {entry}\n")
 
-    return parsed_data
+    return pd.DataFrame(parsed_data, columns=['Record ID', 'Type', 'Focus Area', 'Risk Level', 'Tier', 'Valid'])
 
-# Reading and writing CSV
-with open(input_file, mode='r', newline='', encoding='utf-8') as file, \
-     open(output_file, mode='w', newline='', encoding='utf-8') as outfile:
-    reader = csv.reader(file)
-    writer = csv.writer(outfile)
-    writer.writerow(['Record ID', 'Type', 'Focus Area', 'Risk Level', 'Tier', 'Valid'])
-
-    next(reader)  # Skip header if present
-    for row in reader:
-        record_id = row[0]
-        comment = row[1]
-        parsed_comments = parse_comment(record_id, comment)
-        for data in parsed_comments:
-            writer.writerow(data)
-
-print("CSV parsing complete. Output file created with data integrity checks.")
+# Read CSV with pandas
+dataset = pd.read_csv('input.csv')
+parsed_data = pd.concat([parse_comment(row['Record ID'], row['SMART Record Comment']) for _, row in dataset.iterrows()])
+parsed_data.to_csv('_parsed_pandas_output.csv', index=False)
+print("Parsing complete.")
