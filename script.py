@@ -4,6 +4,9 @@ import csv
 focus_areas = ["Focus Area 1", "Focus Area 2", "Focus Area 3", "Focus Area 4"]
 risk_levels = ["Low", "Medium", "High"]
 tiers = ["Tier 1", "Tier 2", "Tier 3"]
+filename = "output.csv"
+# number of record comments to write to the file
+N = 10
 
 def generate_focus_area(type):
     count = random.randint(1, len(focus_areas))
@@ -35,7 +38,11 @@ def generate_smart_comment():
     return comment
 
 
-for _ in range(10):
-    print(generate_smart_comment())
+# for _ in range(10):
+#     print(generate_smart_comment())
 
-# TODO: Write to CSV
+with open(filename, "w", newline="") as file:
+    writer = csv.writer(file)
+    writer.writerow(["SMART Record Comment"])
+    for _ in range(N):
+        writer.writerow([generate_smart_comment()])
