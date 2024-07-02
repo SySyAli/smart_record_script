@@ -8,10 +8,12 @@ output_file = "parsed_output.csv"
 def validate_entry(entry):
     type_valid = entry[0] in ['INF', 'SHM', 'MHM', 'CAA', 'OPM', 'AEM']
     focus_area_valid = bool(entry[1])  # Checks if there's a non-empty focus area
-    risk_level_valid = entry[2] in ['Low', 'Medium', 'High', '']  # Empty is allowed if no risk level is mentioned
-    tier_valid = entry[3] in ['Tier 1', 'Tier 2', 'Tier 3', '']  # Empty is allowed if no tier is mentioned
-    # TODO: Add a validation rule for SHM/MHM vs the other types
-    return type_valid and focus_area_valid and risk_level_valid and tier_valid
+    risk_level_valid = entry[2] in ['Low', 'Medium', 'High']  # Empty is allowed if no risk level is mentioned
+    tier_valid = entry[3] in ['Tier 1', 'Tier 2', 'Tier 3']  # Empty is allowed if no tier is mentioned
+    if entry[0] in ['SHM', 'MHM']:
+        return type_valid and focus_area_valid and risk_level_valid and tier_valid
+    else:
+        return type_valid and focus_area_valid and risk_level_valid
 
 # Parsing function using specific text markers
 def parse_comment(record_id, comment):
@@ -23,9 +25,11 @@ def parse_comment(record_id, comment):
     for match in matches:
         current_type = match[0]
         content = match[1]
+        print(f"Matched data: {match}")
+        print(f"Current Type: {current_type}, Content: {content}")
         # Further extraction based on known structure within each type
         focus_areas = re.findall(r"([^\(\)\-–]+)(?: – |-)? (?:Tier ([1-3]) )?\(Risk Level (Low|Medium|High)\)?", content)
-        
+        print(f"Extracted data: {focus_areas}")
         for fa in focus_areas:
             focus_area, tier, risk_level = fa
             # Collect each entry
@@ -50,7 +54,7 @@ with open(input_file, mode='r', newline='', encoding='utf-8') as file, \
     for row in reader:
         record_id = row[0]  # Assuming the Record ID is in the first column
         comment = row[1]  # Assuming the comment is in the second column
-        print(f"Parsing comment: {comment}")
+        # print(f"Parsing comment: {comment}")
         parsed_comments = parse_comment(record_id, comment)
         for data in parsed_comments:
             writer.writerow(data)
