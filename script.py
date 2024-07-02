@@ -41,7 +41,7 @@ def generate_smart_comment():
 # for _ in range(10):
 #     print(generate_smart_comment())
 
-with open(filename, "w", newline="") as file:
+with open(filename, "w", newline="", encoding='utf-8') as file:
     writer = csv.writer(file)
     writer.writerow(["SMART Record Comment"])
     for _ in range(N):
