@@ -1,8 +1,12 @@
 import csv
 import re
 
-input_file = "output.csv"
-output_file = "parsed_output.csv"
+input_file = "input.csv"
+output_file = "_parsed_output.csv"
+failed_output_file = "failed_to_parse.txt"
+
+# clear the txt
+open(failed_output_file, 'w').close()
 
 def validate_entry(entry):
     # check if record id exists
@@ -11,7 +15,6 @@ def validate_entry(entry):
     focus_area_valid = bool(entry[2].strip())
     risk_level_valid = entry[3] in ['Low', 'Medium', 'High']
     tier_valid = entry[4] in ['1', '2', '3']
-    print(entry, type_valid, focus_area_valid, risk_level_valid, tier_valid)
     if entry[1] in ['SHM', 'MHM']:
         return id_valid and type_valid and focus_area_valid and risk_level_valid and tier_valid
     else:
@@ -55,7 +58,9 @@ def parse_comment(record_id, comment):
                 entry_data.append(is_valid)
                 parsed_data.append(entry_data)
             else:
-                print(f"Failed to parse entry: {current_type} {entry}")
+                if entry.strip():  # Ensure we do not log empty entries
+                    with open(failed_output_file, 'a') as f:
+                        f.write(f"Failed to parse ENTRY {record_id} | {current_type}: {entry}\n")
 
     return parsed_data
 

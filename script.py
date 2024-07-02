@@ -4,8 +4,8 @@ import csv
 focus_areas = ["Focus Area 1", "Focus Area 2", "Focus Area 3", "Focus Area 4"]
 risk_levels = ["Low", "Medium", "High"]
 tiers = ["Tier 1", "Tier 2", "Tier 3"]
-data_filename = "output.csv"
-metrics_filename = "metrics_report.csv"
+data_filename = "input.csv"
+metrics_filename = "input_metrics_report.csv"
 
 # Number of record comments to write to the file
 N = 10
