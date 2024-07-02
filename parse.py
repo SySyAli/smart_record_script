@@ -10,10 +10,11 @@ def validate_entry(entry):
     focus_area_valid = bool(entry[1])  # Checks if there's a non-empty focus area
     risk_level_valid = entry[2] in ['Low', 'Medium', 'High', '']  # Empty is allowed if no risk level is mentioned
     tier_valid = entry[3] in ['Tier 1', 'Tier 2', 'Tier 3', '']  # Empty is allowed if no tier is mentioned
+    # TODO: Add a validation rule for SHM/MHM vs the other types
     return type_valid and focus_area_valid and risk_level_valid and tier_valid
 
 # Parsing function using specific text markers
-def parse_comment(comment):
+def parse_comment(record_id, comment):
     parsed_data = []
     # Regex pattern that extracts each type section with its content
     pattern = r"SMART \((INF|SHM|MHM|CAA|OPM|AEM)\): (.*?)(?=\s*SMART \((INF|SHM|MHM|CAA|OPM|AEM)\)|$)"
@@ -28,9 +29,9 @@ def parse_comment(comment):
         for fa in focus_areas:
             focus_area, tier, risk_level = fa
             # Collect each entry
-            entry_data = [current_type, focus_area.strip(), risk_level.strip(), tier.strip()]
+            entry_data = [record_id, current_type, focus_area.strip(), risk_level.strip(), tier.strip()]
             # Validate and flag the entry
-            is_valid = 'Yes' if validate_entry(entry_data) else 'No'
+            is_valid = 'True' if validate_entry(entry_data) else 'False'
             entry_data.append(is_valid)
             parsed_data.append(entry_data)
     
@@ -42,12 +43,15 @@ with open(input_file, mode='r', newline='', encoding='utf-8') as file, \
     reader = csv.reader(file)
     writer = csv.writer(outfile)
     # Writing header for the new CSV
-    writer.writerow(['Type', 'Focus Area', 'Risk Level', 'Tier', 'Valid'])
+    writer.writerow(['Record ID', 'Type', 'Focus Area', 'Risk Level', 'Tier', 'Valid'])
+    
+    next(reader)  # Skip header if present
     print("Parsing CSV data...")
     for row in reader:
-        print(f"Parsing comment: {row}")
-        comment = row[0]  # Assuming the comment is in the first column
-        parsed_comments = parse_comment(comment)
+        record_id = row[0]  # Assuming the Record ID is in the first column
+        comment = row[1]  # Assuming the comment is in the second column
+        print(f"Parsing comment: {comment}")
+        parsed_comments = parse_comment(record_id, comment)
         for data in parsed_comments:
             writer.writerow(data)
 

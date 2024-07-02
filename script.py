@@ -43,6 +43,8 @@ def generate_smart_comment():
 
 with open(filename, "w", newline="", encoding='utf-8') as file:
     writer = csv.writer(file)
-    writer.writerow(["SMART Record Comment"])
+    writer.writerow(["Record ID", "SMART Record Comment"])
     for _ in range(N):
-        writer.writerow([generate_smart_comment()])
+        # generate a random id for the record
+        record_id = random.randint(1000, 9999)
+        writer.writerow([record_id, generate_smart_comment()])
