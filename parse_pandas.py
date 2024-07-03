@@ -58,7 +58,6 @@ def parse_comment(record_id, comment):
     return pd.DataFrame(parsed_data, columns=['Record ID', 'Type', 'Focus Area', 'Risk Level', 'Tier', 'Valid'])
 
 # Read CSV with pandas
-dataset = pd.read_csv('input.csv')
 parsed_data = pd.concat([parse_comment(row['Record ID'], row['SMART Record Comment']) for _, row in dataset.iterrows()])
 parsed_data.to_csv('_parsed_pandas_output.csv', index=False)
 print("Parsing complete.")
