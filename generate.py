@@ -34,16 +34,16 @@ def generate_focus_area(type):
     return ", ".join(focus_str), metrics
 
 def generate_smart_comment(record_id, vessel_type):
-    types = function_types
-    random.shuffle(types)
+    functions = function_types
+    random.shuffle(functions)
     comment = "SMART - "
     all_metrics = []
 
-    for type in types:
-        focus_area_string, metrics = generate_focus_area(type)
-        comment += f"SMART ({type}): {focus_area_string}. "
+    for function in functions:
+        focus_area_string, metrics = generate_focus_area(function)
+        comment += f"SMART ({function}): {focus_area_string}. "
         for metric in metrics:
-            all_metrics.append([record_id, vessel_type, type] + metric + ['True'])  # Adding 'True' for the 'Valid' column
+            all_metrics.append([record_id, vessel_type, function] + metric + ['True'])  # Adding 'True' for the 'Valid' column
 
     return comment.strip(), all_metrics
 
@@ -52,7 +52,7 @@ with open(data_filename, "w", newline='', encoding='utf-8') as data_file, \
     data_writer = csv.writer(data_file)
     metrics_writer = csv.writer(metrics_file)
     data_writer.writerow(["Record ID", "Vessel Type", "SMART Record Comment"])
-    metrics_writer.writerow(["Record ID", "Vessel Type", "Type", "Focus Area", "Risk Level", "Tier", "Valid"])
+    metrics_writer.writerow(["Record ID", "Vessel Type", "Function", "Focus Area", "Risk Level", "Tier", "Valid"])
 
     for _ in range(N):
         record_id = random.randint(1000, 9999)

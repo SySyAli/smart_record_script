@@ -49,27 +49,27 @@ def parse_comment(record_id, vessel_type, comment):
     matches = re.findall(pattern, comment, re.DOTALL)
 
     for match in matches:
-        current_type = match[0]
+        current_function = match[0]
         content = match[1]
 
         entries = re.split(r"\),?\s*", content.strip('.'))
         for entry in entries:
-            if current_type in ['SHM', 'MHM']:
+            if current_function in ['SHM', 'MHM']:
                 focus_area, tier, risk_level = parse_shm_mhm(entry)
             else:
                 focus_area, tier, risk_level = parse_general(entry)
 
             if focus_area and risk_level:
-                entry_data = [record_id, vessel_type, current_type, focus_area, risk_level, tier]
+                entry_data = [record_id, vessel_type, current_function, focus_area, risk_level, tier]
                 is_valid = 'True' if validate_entry(entry_data) else 'False'
                 if is_valid == 'False':
-                    print(f"FALSE Failed to parse ENTRY {record_id} ({vessel_type}) | {current_type}: {entry}")
+                    print(f"FALSE Failed to parse ENTRY {record_id} ({vessel_type}) | {current_function}: {entry}")
                 entry_data.append(is_valid)
                 parsed_data.append(entry_data)
             else:
                 if entry.strip():  # Ensure we do not log empty entries
                     with open(failed_output_file, 'a') as f:
-                        f.write(f"Failed to parse ENTRY {record_id} ({vessel_type}) | {current_type}: {entry}\n")
+                        f.write(f"Failed to parse ENTRY {record_id} ({vessel_type}) | {current_function}: {entry}\n")
 
     return parsed_data
 
@@ -78,7 +78,7 @@ with open(input_file, mode='r', newline='', encoding='utf-8') as file, \
      open(output_file, mode='w', newline='', encoding='utf-8') as outfile:
     reader = csv.reader(file)
     writer = csv.writer(outfile)
-    writer.writerow(['Record ID', 'Vessel Type', 'Type', 'Focus Area', 'Risk Level', 'Tier', 'Valid'])
+    writer.writerow(['Record ID', 'Vessel Type', 'Function', 'Focus Area', 'Risk Level', 'Tier', 'Valid'])
 
     next(reader)  # Skip header if present
     for row in reader:
