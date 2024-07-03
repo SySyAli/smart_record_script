@@ -5,20 +5,27 @@ input_file = "input.csv"
 output_file = "_parsed_output.csv"
 failed_output_file = "failed_to_parse.txt"
 
+vessel_types = ["Barge", "Bulk Carrier", "Chemical Carrier", "Container Carrier", 
+                "Dredge", "Fishing Vessel", "Ferry", "Oil Carrier", "Towboat", "Tug", "Yacht"]
+function_types = ["INF", "SHM", "MHM", "CAA", "OPM", "AEM"]
+focus_areas = ["Focus Area 1", "Focus Area 2", "Focus Area 3", "Focus Area 4"]
+risk_levels = ["Low", "Medium", "High"]
+tiers = ["Tier 1", "Tier 2", "Tier 3"]
+
 # clear the txt
 open(failed_output_file, 'w').close()
 
 def validate_entry(entry):
-    # check if record id exists
     id_valid = entry[0] is not None
-    type_valid = entry[1] in ['INF', 'SHM', 'MHM', 'CAA', 'OPM', 'AEM']
-    focus_area_valid = bool(entry[2].strip())
-    risk_level_valid = entry[3] in ['Low', 'Medium', 'High']
-    tier_valid = entry[4] in ['1', '2', '3']
-    if entry[1] in ['SHM', 'MHM']:
-        return id_valid and type_valid and focus_area_valid and risk_level_valid and tier_valid
+    vessel_type_valid = entry[1] in vessel_types
+    type_valid = entry[2] in function_types
+    focus_area_valid = bool(entry[3].strip())
+    risk_level_valid = entry[4] in risk_levels
+    tier_valid = entry[5] in tiers
+    if entry[2] in ['SHM', 'MHM']:
+        return id_valid and vessel_type_valid and type_valid and focus_area_valid and risk_level_valid and tier_valid
     else:
-        return id_valid and type_valid and focus_area_valid and risk_level_valid
+        return id_valid and vessel_type_valid and type_valid and focus_area_valid and risk_level_valid
 
 def parse_general(entry):
     # Adjusting regex for general types without tier information
@@ -36,7 +43,7 @@ def parse_shm_mhm(entry):
         return focus_area.strip(), "Tier " + tier.strip(), risk_level.strip()
     return None, None, None
 
-def parse_comment(record_id, comment):
+def parse_comment(record_id, vessel_type, comment):
     parsed_data = []
     pattern = r"SMART \((INF|SHM|MHM|CAA|OPM|AEM)\): (.*?)(?=\s*SMART \((INF|SHM|MHM|CAA|OPM|AEM)\)|$)"
     matches = re.findall(pattern, comment, re.DOTALL)
@@ -53,14 +60,16 @@ def parse_comment(record_id, comment):
                 focus_area, tier, risk_level = parse_general(entry)
 
             if focus_area and risk_level:
-                entry_data = [record_id, current_type, focus_area, risk_level, tier]
+                entry_data = [record_id, vessel_type, current_type, focus_area, risk_level, tier]
                 is_valid = 'True' if validate_entry(entry_data) else 'False'
+                if is_valid == 'False':
+                    print(f"FALSE Failed to parse ENTRY {record_id} ({vessel_type}) | {current_type}: {entry}")
                 entry_data.append(is_valid)
                 parsed_data.append(entry_data)
             else:
                 if entry.strip():  # Ensure we do not log empty entries
                     with open(failed_output_file, 'a') as f:
-                        f.write(f"Failed to parse ENTRY {record_id} | {current_type}: {entry}\n")
+                        f.write(f"Failed to parse ENTRY {record_id} ({vessel_type}) | {current_type}: {entry}\n")
 
     return parsed_data
 
@@ -69,13 +78,14 @@ with open(input_file, mode='r', newline='', encoding='utf-8') as file, \
      open(output_file, mode='w', newline='', encoding='utf-8') as outfile:
     reader = csv.reader(file)
     writer = csv.writer(outfile)
-    writer.writerow(['Record ID', 'Type', 'Focus Area', 'Risk Level', 'Tier', 'Valid'])
+    writer.writerow(['Record ID', 'Vessel Type', 'Type', 'Focus Area', 'Risk Level', 'Tier', 'Valid'])
 
     next(reader)  # Skip header if present
     for row in reader:
         record_id = row[0]
-        comment = row[1]
-        parsed_comments = parse_comment(record_id, comment)
+        vessel_type = row[1]
+        comment = row[2]
+        parsed_comments = parse_comment(record_id, vessel_type, comment)
         for data in parsed_comments:
             writer.writerow(data)
 

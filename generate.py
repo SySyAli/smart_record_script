@@ -1,13 +1,15 @@
 import random
 import csv
 
-focus_areas = ["Focus Area 1", "Focus Area 2", "Focus Area 3", "Focus Area 4"]
-risk_levels = ["Low", "Medium", "High"]
-vessel_types = ["Barge", "Bulk Carrier", "Chemical Carrier", "Container Carrier", 
-                "Dredge", "Fishing Vessel", "Ferry", "Oil Carrier", "Towboat", "Tug", "Yacht"]
-tiers = ["Tier 1", "Tier 2", "Tier 3"]
 data_filename = "input.csv"
 metrics_filename = "input_metrics_report.csv"
+
+vessel_types = ["Barge", "Bulk Carrier", "Chemical Carrier", "Container Carrier", 
+                "Dredge", "Fishing Vessel", "Ferry", "Oil Carrier", "Towboat", "Tug", "Yacht"]
+function_types = ["INF", "SHM", "MHM", "CAA", "OPM", "AEM"]
+focus_areas = ["Focus Area 1", "Focus Area 2", "Focus Area 3", "Focus Area 4"]
+risk_levels = ["Low", "Medium", "High"]
+tiers = ["Tier 1", "Tier 2", "Tier 3"]
 
 # Number of record comments to write to the file
 N = 120
@@ -32,7 +34,7 @@ def generate_focus_area(type):
     return ", ".join(focus_str), metrics
 
 def generate_smart_comment(record_id, vessel_type):
-    types = ["INF", "SHM", "MHM", "CAA", "OPM", "AEM"]
+    types = function_types
     random.shuffle(types)
     comment = "SMART - "
     all_metrics = []
