@@ -1,6 +1,7 @@
 # For PowerBI use
 import pandas as pd
 import re
+import itertools
 
 vessel_types = ["Barge", "Bulk Carrier", "Chemical Carrier", "Container Carrier", 
                 "Dredge", "Fishing Vessel", "Ferry", "Oil Carrier", "Towboat", "Tug", "Yacht"]
@@ -64,5 +65,20 @@ def parse_comment(record_id, vessel_type, comment):
 
     return pd.DataFrame(parsed_data, columns=['Record ID', 'Vessel Type', 'Function', 'Focus Area', 'Risk Level', 'Tier', 'Valid'])
 
+def get_all_combinations(comment):
+    # get all functions inside the comment and sort it alphabeticaly
+    functions = sorted(set(re.findall(r"SMART \((INF|SHM|MHM|CAA|OPM|AEM)\)", comment)))
+    # print(functions)
+    #  generate all combinations of the functions array from length 2 to the length of the array and drop the duplicates and sort it and return it
+    return sorted(set(itertools.chain.from_iterable(itertools.combinations(functions, r) for r in range(2, len(functions) + 1))))
+
 # Read CSV with pandas
 parsed_data = pd.concat([parse_comment(row['Record ID'], row['Vessel Type'],row['SMART Record Comment']) for _, row in dataset.iterrows()])
+# Go through all the rows and run get_all_combinations on the 'SMART Record Comment' column and iterate through those results and store them in a seperate df
+
+combinations_data = []
+for _, row in dataset.iterrows():
+    for combination in get_all_combinations(row['SMART Record Comment']):
+        combinations_data.append([row['Record ID'], combination])
+
+combination_data = pd.DataFrame(combinations_data, columns=['Record ID', 'SMART Function Combination'])

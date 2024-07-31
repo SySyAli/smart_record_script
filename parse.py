@@ -1,8 +1,11 @@
 import csv
 import re
+import itertools
+import pandas as pd
 
 input_file = "input.csv"
 output_file = "_parsed_output.csv"
+combinations_file = "_combinations_output.csv"
 failed_output_file = "failed_to_parse.txt"
 
 vessel_types = ["Barge", "Bulk Carrier", "Chemical Carrier", "Container Carrier", 
@@ -73,20 +76,40 @@ def parse_comment(record_id, vessel_type, comment):
 
     return parsed_data
 
+def get_all_combinations(comment):
+    # get all functions inside the comment and sort it alphabeticaly
+    functions = sorted(set(re.findall(r"SMART \((INF|SHM|MHM|CAA|OPM|AEM)\)", comment)))
+    # print(functions)
+    #  generate all combinations of the functions array from length 2 to the length of the array and drop the duplicates and sort it and return it
+    return sorted(set(itertools.chain.from_iterable(itertools.combinations(functions, r) for r in range(2, len(functions) + 1))))
+    
+    
 # Reading and writing CSV
-with open(input_file, mode='r', newline='', encoding='utf-8') as file, \
-     open(output_file, mode='w', newline='', encoding='utf-8') as outfile:
+with open(input_file, mode='r', newline='', encoding='utf-8') as file:
     reader = csv.reader(file)
-    writer = csv.writer(outfile)
-    writer.writerow(['Record ID', 'Vessel Type', 'Function', 'Focus Area', 'Risk Level', 'Tier', 'Valid'])
 
+    data = []
+    combinations_data = []
     next(reader)  # Skip header if present
     for row in reader:
         record_id = row[0]
         vessel_type = row[1]
         comment = row[2]
         parsed_comments = parse_comment(record_id, vessel_type, comment)
-        for data in parsed_comments:
-            writer.writerow(data)
+        all_combinations = get_all_combinations(comment)
+        for parsed_data in parsed_comments:
+            data.append(parsed_data)
+        for combination in all_combinations:
+            print(record_id, combination)
+            combinations_data.append([record_id,  combination])
+
+# Create a pandas DataFrame from the parsed data
+df = pd.DataFrame(data, columns=['Record ID', 'Vessel Type', 'Function', 'Focus Area', 'Risk Level', 'Tier', 'Valid'])
+df_comb = pd.DataFrame(combinations_data, columns=['Record ID', 'Function Combination'])
+
+# Save the DataFrame to a CSV file
+df.to_csv(output_file, index=False, encoding='utf-8')
+df_comb.to_csv(combinations_file, index=False, encoding='utf-8')
 
 print("CSV parsing complete. Output file created with data integrity checks.")
+
