@@ -37,7 +37,9 @@ The `parse.py` script reads the generated CSV, applies regex operations to extra
 - Focus area and risk level are appropriately labeled
 - Tier information is present when required (SHM and MHM)
 
-Valid entries are saved to `parsed_output.csv`, and any errors encountered during parsing are logged to `failed_to_parse.txt`.
+Valid entries are saved to `parsed_output.csv`, and any errors encountered during parsing are logged to `failed_to_parse.txt`. All combinations of a ship's SMART Functions are saved to `_combinations_output.csv`.
+
+`parse_pandas.py` is used specifically for procedures that require pandas, like **PowerBI's python transform feature**.
 
 ## Contributing
 Feel free to fork this repository and submit pull requests or create issues for any improvements or bug fixes.

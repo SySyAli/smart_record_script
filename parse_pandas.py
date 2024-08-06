@@ -68,9 +68,7 @@ def parse_comment(record_id, vessel_type, comment):
 def get_all_combinations(comment):
     # get all functions inside the comment and sort it alphabeticaly
     functions = sorted(set(re.findall(r"SMART \((INF|SHM|MHM|CAA|OPM|AEM)\)", comment)))
-    # print(functions)
-    #  generate all combinations of the functions array from length 2 to the length of the array and drop the duplicates and sort it and return it
-    return sorted(set(itertools.chain.from_iterable(itertools.combinations(functions, r) for r in range(2, len(functions) + 1))))
+    return sorted(set(itertools.chain(*[itertools.combinations(functions, i) for i in range(2, len(functions) + 1)]), key=len))
 
 # Read CSV with pandas
 parsed_data = pd.concat([parse_comment(row['Record ID'], row['Vessel Type'],row['SMART Record Comment']) for _, row in dataset.iterrows()])
